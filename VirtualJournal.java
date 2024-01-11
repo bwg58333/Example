@@ -8,6 +8,7 @@ public class VirtualJournal {
     }
 
     public void appendText(String text) {
+        System.out.println("Appending to journal: " + text);
         journalArea.append(text + "\n");
     }
 

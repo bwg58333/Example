@@ -1,125 +1,91 @@
 import java.util.ArrayList;
 import java.util.List;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class Register {
     private List<String[]> scannedItems;
-    private int quantity;
     private double subtotal;
     private double total;
     private double taxAmount;
-    private double nextDollar;
+    private int quantity;
     private final PriceBook priceBook;
-    private static final double TAX_RATE = 1.07;
-
-    SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-    Date date = new Date();
+    private static final double TAX_RATE = 0.07;
 
     public Register(PriceBook priceBook) {
         this.priceBook = priceBook;
         scannedItems = new ArrayList<>();
         subtotal = 0.0;
         total = 0.0;
-        quantity = 0;
     }
 
-    public void setTotal(double newTotal) {
-        this.total = newTotal;
-    }
-
-    public void scanItem(String barcode) {
+    public String scanItem(String barcode) {
         String[] productInfo = priceBook.getProductInfo(barcode);
         if (productInfo != null) {
             scannedItems.add(new String[] { barcode, productInfo[0], productInfo[1] });
-            quantity++;
             updateSubtotal();
+            quantity++;
+            return "Item scanned: " + productInfo[0] + " - Price: $" + productInfo[1];
+        } else {
+            return "Item with barcode " + barcode + " not found.";
         }
-
-        // quantity++;
-
-        System.out.println("Item" + " " + productInfo[0] + " " + "scanned => " + "Basket Qty: " + quantity);
-        System.out.println("Subtotal: $" + subtotal);
-
     }
-
-    public void printLiveReceipt() {
-        System.out.println("Welcome to POS");
-        System.out.println("Cashier: Bobby");
-        System.out.println(formatter.format(date));
-
-    }
-
-    /**
-     * private void updateSubtotal() {
-     * double sum = 0.0;
-     * for (String[] item : scannedItems) {
-     * double v = Double.parseDouble(item[2]);
-     * sum += v;
-     * }
-     * subtotal = sum;
-     * }
-     * /
-     */
 
     private void updateSubtotal() {
-        double sum = 0.0;
+        subtotal = 0.0;
         for (String[] item : scannedItems) {
-            double v = Double.parseDouble(item[2]);
-            sum += v;
+            subtotal += Double.parseDouble(item[2]);
         }
-        subtotal = sum;
-        updateTotal(); // Update the total whenever the subtotal changes
+        updateTotal();
     }
 
-    /**
-     * public void updateTotal(double subtotal) {
-     * // double taxAmount = subtotal * 0.07;
-     * taxAmount = subtotal * 0.07;
-     * total = taxAmount + subtotal;
-     * }
-     */
-
-    public void updateTotal() {
-        // Assuming tax is calculated as 7% of the subtotal
-        taxAmount = subtotal * 0.07;
+    private void updateTotal() {
+        taxAmount = subtotal * TAX_RATE;
         total = subtotal + taxAmount;
     }
 
-    public void voidLastItem() {
+    public String voidLastItem() {
         if (!scannedItems.isEmpty()) {
-            scannedItems.remove(scannedItems.size() - 1);
+            String[] removedItem = scannedItems.remove(scannedItems.size() - 1);
             updateSubtotal();
-        }
-        if (quantity > 0) {
             quantity--;
+            return "Last item voided: " + removedItem[1];
+        } else {
+            return "No items to void.";
         }
     }
 
-    public void voidTransaction() {
-        // scannedItems.clear();
+    public String voidTransaction() {
+        if (!scannedItems.isEmpty()) {
+            scannedItems.clear();
+            updateSubtotal();
+            quantity = 0;
+            return "Transaction voided.";
+        } else {
+            return "No transaction to void.";
+        }
+    }
 
-        // updateSubtotal();
-        subtotal = 0;
-
+    public void resetTransaction() {
+        scannedItems.clear();
+        subtotal = 0.0;
+        total = 0.0;
+        taxAmount = 0.0;
         quantity = 0;
-
+        // Add any additional reset logic needed
     }
 
-    /**
-     * public void nextDollar(double total) {
-     * if (this.total > 0) {
-     * this.total = Math.ceil(total);
-     * }
-     * nextDollar = this.total;
-     * }
-     */
+    public String nextDollar() {
+        double originalTotal = total;
+        total = Math.ceil(total);
+        double changeDue = total - originalTotal;
 
-    public double calculateChange() {
-        double amountPaid = Math.ceil(total);
-        return amountPaid - total;
+        if (changeDue > 0) {
+            return String.format("Total rounded to next dollar: $%.2f. Change due: $%.2f", total, changeDue);
+        } else {
+            return String.format("Total (already at whole dollar): $%.2f", total);
+        }
     }
 
+    // Getters for subtotal, total, tax amount, and scanned items
     public double getSubtotal() {
         return subtotal;
     }
@@ -128,15 +94,17 @@ public class Register {
         return total;
     }
 
+    public double getTaxAmount() {
+        return taxAmount;
+    }
+
     public int getQuantity() {
         return quantity;
     }
 
-    public double getNextDollar() {
-        return nextDollar;
+    public List<String[]> getScannedItems() {
+        return new ArrayList<>(scannedItems);
     }
 
-    public List<String[]> getScannedItems() {
-        return scannedItems;
-    }
+    // Add other getters, setters, and methods as necessary...
 }
