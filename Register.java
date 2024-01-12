@@ -7,6 +7,7 @@ public class Register {
     private double total;
     private double taxAmount;
     private int quantity;
+    private int transaction;
     private final PriceBook priceBook;
     private static final double TAX_RATE = 0.07;
 
@@ -15,6 +16,7 @@ public class Register {
         scannedItems = new ArrayList<>();
         subtotal = 0.0;
         total = 0.0;
+        transaction = 1;
     }
 
     public String scanItem(String barcode) {
@@ -70,6 +72,7 @@ public class Register {
         total = 0.0;
         taxAmount = 0.0;
         quantity = 0;
+        transaction++;
         // Add any additional reset logic needed
     }
 
@@ -102,9 +105,12 @@ public class Register {
         return quantity;
     }
 
+    public int getTransaction() {
+        return transaction;
+    }
+
     public List<String[]> getScannedItems() {
         return new ArrayList<>(scannedItems);
     }
 
-    // Add other getters, setters, and methods as necessary...
 }
