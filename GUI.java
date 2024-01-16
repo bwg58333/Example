@@ -25,15 +25,18 @@ public class GUI {
         virtualJournal = new VirtualJournal();
         virtualJournalArea = virtualJournal.getJournalArea();
         virtualJournal.appendText(
-                formatter.format(date) + " " + "Cashier: Bobby " + "Begin Transacation#" + register.getTransaction());
+                formatter.format(date) + " " + "Cashier: Bobby " + "Begin Transacation#"
+                        + register.getTransactionNumber());
 
         try {
-            server = new Server(1234); // Initialize the server
-            new Thread(server::start).start(); // Start the server in a new thread
+            server = new Server(1234);
+            new Thread(server::start).start();
         } catch (IOException e) {
             e.printStackTrace();
             return;
         }
+
+        server.broadcastUpdate(virtualJournal.getJournalEntries());
 
         initializeUI();
         setupGlobalKeyListener();
@@ -54,7 +57,6 @@ public class GUI {
 
         poleDisplay = new JLabel("Pole Display");
 
-        // setupButtons();
         setupQuickKeysPanel();
 
         JPanel mainPanel = new JPanel(new BorderLayout());
@@ -144,19 +146,6 @@ public class GUI {
         return actionButtonsPanel;
     }
 
-    private void setupButtons() {
-        nextDollarButton = new JButton("Next Dollar");
-        payForTicketButton = new JButton("Pay");
-        voidTransactionButton = new JButton("Void Transaction");
-        voidLastItemButton = new JButton("Void Last Item");
-
-        nextDollarButton.addActionListener(e -> nextDollarAction());
-        payForTicketButton.addActionListener(e -> payForTicketAction());
-        voidTransactionButton.addActionListener(e -> voidTransactionAction());
-        voidLastItemButton.addActionListener(e -> voidLastItemAction());
-
-    }
-
     private void barcodeInputAction(ActionEvent e) {
         String barcode = barcodeInput.getText();
 
@@ -179,7 +168,10 @@ public class GUI {
     }
 
     private void payForTicketAction() {
-        String log = "Payment processed. Total: $" + register.getTotal();
+        String log = "Payment processed. Subtotal: $" + register.getSubtotal() +
+                " | Total: $" + register.getTotal() +
+                " | Items: " + register.getQuantity() +
+                " | Tax: " + register.getTaxAmount();
         virtualJournal.appendText(log);
         server.broadcastUpdate(log);
 
@@ -187,7 +179,8 @@ public class GUI {
         register.resetTransaction();
 
         String newTransactionLog = "New Transaction Started\n" +
-                formatter.format(date) + " " + "Cashier: Bobby " + "Begin Transacation#" + register.getTransaction();
+                formatter.format(date) + " " + "Cashier: Bobby " + "Begin Transacation#"
+                + register.getTransactionNumber();
 
         virtualJournal.appendText(newTransactionLog);
         server.broadcastUpdate(newTransactionLog);
@@ -212,15 +205,8 @@ public class GUI {
     private void updatePoleDisplay() {
         poleDisplay.setText("Subtotal: $" + register.getSubtotal() +
                 " | Total: $" + register.getTotal() +
-                " | Items: " + register.getQuantity());
-    }
-
-    public String getVirtualJournalEntries() {
-        return virtualJournal.getJournalEntries();
-    }
-
-    public String getLatest() {
-        return virtualJournal.getLatestJournal();
+                " | Items: " + register.getQuantity() +
+                " | Tax: " + register.getTaxAmount());
     }
 
     public static void main(String[] args) {

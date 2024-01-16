@@ -11,8 +11,11 @@ public class Client {
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         out = new PrintWriter(socket.getOutputStream(), true);
 
-        // Start a new thread to listen for messages from the server
-        new Thread(this::listenForServerMessages).start();
+        out.println("Hello World!");
+
+        //New Thread to listen
+        //new Thread(this::listenForServerMessages).start();
+        listenForServerMessages();
     }
 
     private void listenForServerMessages() {
@@ -26,20 +29,26 @@ public class Client {
         }
     }
 
-    public void disconnect() throws IOException {
-        if (socket != null) {
-            socket.close();
-        }
-    }
-
     public static void main(String[] args) {
         Client client = new Client();
         try {
-            client.connect("127.0.0.1", 1234);
-            // The client will continue to listen for messages from the server
-            // Add any additional client logic here
+            //ME
+            client.connect("192.168.168.7", 1234);
+
+            //Mason
+            //client.connect("192.168.168.8", 4206);
+
+            //Michael
+            //client.connect("192.168.168.24", 5000);
+
+            //Dean
+            //client.connect("192.168.168.141", 7777);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 }
+
+
+

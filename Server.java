@@ -36,10 +36,13 @@ public class Server {
             String inputLine;
             while ((inputLine = in.readLine()) != null) {
                 System.out.println("Received from client: " + inputLine);
-                // Example: Echoing received message back to all clients
+
+                //Echoing received message back to all clients
+                /**
                 for (PrintWriter clientWriter : clientWriters) {
                     clientWriter.println("Echo: " + inputLine);
                 }
+                 */
             }
         } catch (IOException e) {
             System.out.println("Client connection error: " + e.getMessage());
